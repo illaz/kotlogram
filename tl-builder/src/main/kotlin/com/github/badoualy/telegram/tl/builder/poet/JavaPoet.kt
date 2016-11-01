@@ -65,7 +65,7 @@ object JavaPoet {
 
         // Compute abstraction classes (multiple constructors for 1 type)
         val typeOccurrences = HashMap<TLType, Int>(tlDefinition.types.size)
-        constructors.map { it.tlType }.forEach { typeOccurrences.put(it, typeOccurrences.getOrDefault(it, 0) + 1) }
+        constructors.map { it.tlType }.forEach { typeOccurrences.put(it, (typeOccurrences[it] ?: 0) + 1) }
         val nonAbstractedConstructors = constructors.filter { typeOccurrences[it.tlType]!! == 1 } // No need for abstraction
         val abstractedConstructors = constructors.filter { typeOccurrences[it.tlType]!! > 1 } // Need abstraction
         val abstractConstructors = ArrayList<TLAbstractConstructor>() // Fake constructor created by us
@@ -262,7 +262,7 @@ object JavaPoet {
 
         generateClassCommon(clazz, clazzTypeName, constructor.name, constructor.id, constructor.parameters)
 
-        if (emptyConstructorAbstractedMap.getOrDefault(constructor, false)) {
+        if (emptyConstructorAbstractedMap[constructor] ?: false) {
             clazz.addMethod(MethodSpec.methodBuilder("isEmpty")
                                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                                     .addAnnotation(Override::class.java)

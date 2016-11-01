@@ -3,17 +3,17 @@ package com.github.badoualy.telegram.api
 import com.github.badoualy.telegram.mtproto.MTProtoHandler
 import com.github.badoualy.telegram.mtproto.model.DataCenter
 import com.github.badoualy.telegram.mtproto.secure.RandomUtils
-import org.slf4j.LoggerFactory
+import java.util.logging.Logger
 
 object Kotlogram {
 
-    private val logger = LoggerFactory.getLogger(Kotlogram::class.java)!!
+    val logger = Logger.getLogger("MTproto")
 
     @JvmField
     val API_LAYER = 53
 
     init {
-        logger.info("""
+        logger.warning("""
          __  ___   ______   .___________. __        ______     _______ .______          ___      .___  ___.
         |  |/  /  /  __  \  |           ||  |      /  __  \   /  _____||   _  \        /   \     |   \/   |
         |  '  /  |  |  |  | `---|  |----`|  |     |  |  |  | |  |  __  |  |_)  |      /  ^  \    |  \  /  |
@@ -31,11 +31,11 @@ object Kotlogram {
 
     @JvmStatic
     fun cleanUp() {
-        logger.warn("==================== CLEANING ====================")
+        logger.warning("==================== CLEANING ====================")
         TelegramClientPool.DEFAULT_POOL.cleanUp()
         TelegramClientPool.DOWNLOADER_POOL.cleanUp()
         MTProtoHandler.cleanUp()
-        logger.warn("==================== CLEANED ====================")
+        logger.warning("==================== CLEANED ====================")
     }
 
     @JvmField val PROD_DC1 = DataCenter("149.154.175.50", 443)

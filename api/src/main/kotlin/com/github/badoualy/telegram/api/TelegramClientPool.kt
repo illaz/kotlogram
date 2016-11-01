@@ -1,8 +1,7 @@
 package com.github.badoualy.telegram.api
 
-import org.slf4j.LoggerFactory
-import org.slf4j.MarkerFactory
 import java.util.*
+import java.util.logging.Logger
 import kotlin.concurrent.schedule
 
 /**
@@ -10,8 +9,6 @@ import kotlin.concurrent.schedule
  * they'll be used again soon
  */
 class TelegramClientPool private constructor(name: String) {
-
-    private val marker = MarkerFactory.getMarker(name)
 
     private val DEFAULT_EXPIRATION_DELAY = 5L * 60L * 1000L // 5 minutes
 
@@ -29,7 +26,7 @@ class TelegramClientPool private constructor(name: String) {
      */
     @JvmOverloads
     fun put(id: Long, client: TelegramClient, listener: OnClientTimeoutListener?, expiresIn: Long = DEFAULT_EXPIRATION_DELAY) {
-        logger.debug(marker, "Adding client with id $id")
+        logger.fine("Adding client with id $id")
         synchronized(this) {
             // Already have a client with this id, close the new one and reset timer
             expireMap.put(id, System.currentTimeMillis() + expiresIn)
@@ -80,10 +77,11 @@ class TelegramClientPool private constructor(name: String) {
     fun onTimeout(id: Long) {
         val timeout =
                 synchronized(this) {
-                    if (expireMap.getOrDefault(id, 0) <= System.currentTimeMillis()) {
+                    if ((expireMap[id] ?: 0) <= System.currentTimeMillis()) {
+                        logger.info("$id client timeout")
                         val client = getAndRemove(id)
                         if (client != null) {
-                            logger.info(marker, "$id client timeout")
+                            logger.info("$id client timeout")
                             client.close(false)
                             true
                         } else false
@@ -102,7 +100,7 @@ class TelegramClientPool private constructor(name: String) {
     fun getClients() = map.values
 
     companion object {
-        private val logger = LoggerFactory.getLogger(TelegramClientPool::class.java)
+        private val logger = Logger.getLogger("MTProto")
 
         @JvmField
         val DEFAULT_POOL = TelegramClientPool("DefaultPool")

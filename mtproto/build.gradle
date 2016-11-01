@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'kotlin'
 apply plugin: 'maven'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 1.7
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
@@ -13,8 +13,12 @@ dependencies {
     //compile 'commons-io:commons-io:2.4'
     //compile 'org.apache.commons:commons-lang3:3.4'
 
-    compile 'io.reactivex:rxjava:1.2.0'
-    compile 'org.slf4j:slf4j-simple:1.7.21'
+    compile 'io.reactivex:rxjava:1.0.16'
+
+    compile 'net.sourceforge.streamsupport:streamsupport:1.4.3'
+    compile 'net.sourceforge.streamsupport:streamsupport-cfuture:1.4.3'
+    compile 'net.sourceforge.streamsupport:streamsupport-atomic:1.4.3'
+    compile 'net.sourceforge.streamsupport:streamsupport-flow:1.4.3'
 }
 
 task fatJar(type: Jar) {

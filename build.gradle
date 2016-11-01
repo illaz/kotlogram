@@ -5,8 +5,8 @@ subprojects {
     version = "0.0.7-beta"
     group = 'com.github.badoualy'
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
 
     repositories {
         jcenter()

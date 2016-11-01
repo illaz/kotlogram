@@ -2,7 +2,6 @@ package com.github.badoualy.telegram.mtproto
 
 import com.github.badoualy.telegram.mtproto.transport.MTProtoConnection
 import com.github.badoualy.telegram.mtproto.util.NamedThreadFactory
-import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.Subscriber
 import java.io.IOException
@@ -10,6 +9,7 @@ import java.nio.channels.SelectionKey
 import java.nio.channels.Selector
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.logging.Logger
 
 /**
  * Permanently listen for messages on given MTProtoConnection and wrap everything in an Observable, each message will be send
@@ -17,7 +17,7 @@ import java.util.concurrent.Executors
  */
 internal object MTProtoWatchdog : Runnable {
 
-    private val logger = LoggerFactory.getLogger(MTProtoWatchdog.javaClass)
+    private val logger = Logger.getLogger("MTproto")
 
     private val SELECT_TIMEOUT_DELAY = 10 * 1000L // 10 seconds
 
@@ -74,7 +74,7 @@ internal object MTProtoWatchdog : Runnable {
                 synchronized(this) {
                     if (connectionList.isEmpty()) {
                         running = false
-                        logger.warn("Stopping watchdog...")
+                        logger.warning("Stopping watchdog...")
                         return
                     }
                 }
@@ -83,25 +83,25 @@ internal object MTProtoWatchdog : Runnable {
     }
 
     private fun readMessage(connection: MTProtoConnection): Boolean {
-        logger.info(connection.marker, "readMessage()")
+        logger.info("readMessage()")
         val subscriber = subscriberMap[connection]
         if (subscriber == null || subscriber.isUnsubscribed || !connectionList.contains(connection)) {
-            logger.warn(connection.marker, "Subscribed already unsubscribed, dropping")
+            logger.warning("Subscribed already unsubscribed, dropping")
             return false
         }
 
         try {
             val message = connection.readMessage()
-            logger.debug(connection.marker, "New message of length: ${message.size}")
+            logger.fine("New message of length: ${message.size}")
             subscriber.onNext(message)
         } catch (e: IOException) {
             // Silent fail if no subscriber
             if (!subscriber.isUnsubscribed) {
-                logger.error(connection.marker, "Sending exception to subscriber")
+                logger.severe("Sending exception to subscriber")
                 subscriber.onError(e)
             }
 
-            logger.warn(connection.marker, "Already unsubscribed")
+            logger.warning("Already unsubscribed")
             return false
         }
 
@@ -109,7 +109,7 @@ internal object MTProtoWatchdog : Runnable {
     }
 
     fun start(connection: MTProtoConnection): Observable<ByteArray> = Observable.create<ByteArray> { s ->
-        logger.info(connection.marker, "Adding ${connection.tag} to watchdog")
+        logger.info("Adding ${connection.tag} to watchdog")
         synchronized(this) {
             connectionList.add(connection)
             subscriberMap.put(connection, s)
@@ -124,7 +124,7 @@ internal object MTProtoWatchdog : Runnable {
     }
 
     fun stop(connection: MTProtoConnection) {
-        logger.info(connection.marker, "Stopping ${connection.tag}")
+        logger.info("Stopping ${connection.tag}")
         synchronized(this) {
             connectionList.remove(connection)
             val subscriber = subscriberMap.remove(connection)
@@ -135,7 +135,7 @@ internal object MTProtoWatchdog : Runnable {
     }
 
     fun cleanUp() {
-        logger.warn("==================== SHUTTING DOWN WATCHDOG ====================")
+        logger.warning("==================== SHUTTING DOWN WATCHDOG ====================")
         executor.shutdownNow()
         pool.shutdownNow()
     }

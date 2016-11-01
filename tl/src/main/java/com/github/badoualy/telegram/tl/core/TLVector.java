@@ -11,11 +11,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Spliterator;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
-import java.util.stream.Stream;
 
 import static com.github.badoualy.telegram.tl.StreamUtils.readInt;
 import static com.github.badoualy.telegram.tl.StreamUtils.writeInt;
@@ -230,43 +225,8 @@ public class TLVector<T> extends TLObject implements List<T> {
     }
 
     @Override
-    public void forEach(Consumer<? super T> action) {
-        items.forEach(action);
-    }
-
-    @Override
-    public Spliterator<T> spliterator() {
-        return items.spliterator();
-    }
-
-    @Override
-    public boolean removeIf(Predicate<? super T> filter) {
-        return items.removeIf(filter);
-    }
-
-    @Override
-    public void replaceAll(UnaryOperator<T> operator) {
-        items.replaceAll(operator);
-    }
-
-    @Override
-    public void sort(Comparator<? super T> c) {
-        items.sort(c);
-    }
-
-    @Override
     public int hashCode() {
         return items.hashCode();
-    }
-
-    @Override
-    public Stream<T> stream() {
-        return items.stream();
-    }
-
-    @Override
-    public Stream<T> parallelStream() {
-        return items.parallelStream();
     }
 
     @Override

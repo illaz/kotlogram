@@ -1,18 +1,16 @@
 package com.github.badoualy.telegram.mtproto.transport
 
 import com.github.badoualy.telegram.tl.ByteBufferUtils.*
-import org.slf4j.LoggerFactory
-import org.slf4j.MarkerFactory
 import java.io.IOException
 import java.net.ConnectException
 import java.net.InetSocketAddress
-import java.net.StandardSocketOptions
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.channels.SelectionKey
 import java.nio.channels.Selector
 import java.nio.channels.SocketChannel
 import java.util.concurrent.TimeUnit
+import java.util.logging.Logger
 
 internal class MTProtoTcpConnection
 @Throws(IOException::class)
@@ -23,10 +21,7 @@ internal class MTProtoTcpConnection
     override var tag: String = tag
         set(value) {
             field = value
-            marker = MarkerFactory.getMarker(tag)
         }
-    override var marker = MarkerFactory.getMarker(tag)!!
-        private set
 
     private var socketChannel: SocketChannel
     private val msgHeaderBuffer = ByteBuffer.allocate(1)
@@ -38,8 +33,7 @@ internal class MTProtoTcpConnection
         var attempt = 1
         do {
             socketChannel = SocketChannel.open()
-            socketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true)
-            //socketChannel.setOption(StandardSocketOptions.TCP_NODELAY, true)
+//            socketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true)
             socketChannel.configureBlocking(true)
             try {
                 socketChannel.connect(InetSocketAddress(ip, port))
@@ -47,14 +41,14 @@ internal class MTProtoTcpConnection
 
                 if (abridgedProtocol) {
                     // @see https://core.telegram.org/mtproto/samples-auth_key
-                    logger.info(marker, "Using abridged protocol")
+                    logger.info("Using abridged protocol")
                     socketChannel.write(ByteBuffer.wrap(byteArrayOf(0xef.toByte())))
                 }
-                logger.info(marker, "Connected to $ip:$port isConnected: ${socketChannel.isConnected}, isOpen: ${socketChannel.isOpen}")
+                logger.info("Connected to $ip:$port isConnected: ${socketChannel.isConnected}, isOpen: ${socketChannel.isOpen}")
 
                 break
             } catch(e: Exception) {
-                logger.error(marker, "Failed to connect")
+                logger.severe("Failed to connect")
                 try {
                     socketChannel.close()
                 } catch (e: Exception) {
@@ -79,7 +73,7 @@ internal class MTProtoTcpConnection
         if (length == 0x7f)
             length = readInt24(readBytes(3, msgLengthBuffer))
 
-        logger.debug(marker, "About to read a message of length ${length * 4}")
+        logger.fine("About to read a message of length ${length * 4}")
         val buffer = readBytes(length * 4)
 
         // TODO: fix to return ByteBuffer
@@ -138,7 +132,7 @@ internal class MTProtoTcpConnection
 
     @Throws(IOException::class)
     override fun close() {
-        logger.debug(marker, "Closing connection")
+        logger.fine("Closing connection")
         socketChannel.close()
     }
 
@@ -168,6 +162,6 @@ internal class MTProtoTcpConnection
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(MTProtoTcpConnection::class.java)
+        private val logger = Logger.getLogger("MTproto")
     }
 }

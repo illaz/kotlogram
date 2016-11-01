@@ -4,7 +4,6 @@ import com.github.badoualy.telegram.mtproto.secure.RandomUtils
 import com.github.badoualy.telegram.mtproto.time.TimeOverlord
 import com.github.badoualy.telegram.tl.TLObjectUtils
 import com.github.badoualy.telegram.tl.core.TLObject
-import org.slf4j.MarkerFactory
 import java.math.BigInteger
 
 /** see https://core.telegram.org/mtproto/description#session
@@ -14,8 +13,6 @@ class MTSession(var dataCenter: DataCenter, var id: ByteArray = RandomUtils.rand
 
     @Transient
     val tag = "$tag:${BigInteger(id).toLong()}"
-    @Transient
-    val marker = MarkerFactory.getMarker(this.tag)!!
 
     /**
      * Generate a valid seqNo value for the given message type

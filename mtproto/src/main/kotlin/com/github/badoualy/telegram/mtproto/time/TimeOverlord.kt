@@ -1,13 +1,13 @@
 package com.github.badoualy.telegram.mtproto.time
 
 import com.github.badoualy.telegram.mtproto.model.DataCenter
-import org.slf4j.LoggerFactory
 import java.util.*
+import java.util.logging.Logger
 
 
 internal object TimeOverlord {
 
-    private val logger = LoggerFactory.getLogger(TimeOverlord::class.java)
+    private val logger = Logger.getLogger("MTproto")
 
     // Delta between server time and client time in ms
     private val deltaMap = HashMap<DataCenter, Long>()
@@ -15,15 +15,15 @@ internal object TimeOverlord {
     private val localTime: Long // ms
         get() = System.currentTimeMillis()
 
-    fun getServerTime(dataCenter: DataCenter) = localTime + deltaMap.getOrDefault(dataCenter, 0L)
+    fun getServerTime(dataCenter: DataCenter) = localTime + (deltaMap[dataCenter] ?: 0L)
 
     // Take time in seconds and shift left
     fun generateMessageId(dataCenter: DataCenter) = (getServerTime(dataCenter) / 1000) shl 32
 
     fun setServerTime(dataCenter: DataCenter, serverTime: Long) {
         deltaMap.put(dataCenter, serverTime - localTime)
-        logger.warn("New server time for ${dataCenter.toString()} is $serverTime")
-        logger.warn("New time delta for ${dataCenter.toString()} is ${deltaMap[dataCenter]}")
+        logger.warning("New server time for $dataCenter is $serverTime")
+        logger.warning("New time delta for $dataCenter is ${deltaMap[dataCenter]}")
     }
 
     // Reverse operation, shift right then multiply by 1000
