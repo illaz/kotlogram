@@ -1,9 +1,0 @@
-{
-  "peer": {
-    "_constructor": "inputPeerEmpty#7f3b18ea"
-  },
-  "action": {
-    "_constructor": "sendMessageTypingAction#16bf744e"
-  },
-  "_constructor": "messages.setTyping#a3825e50"
-}

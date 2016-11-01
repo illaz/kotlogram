@@ -1,9 +1,0 @@
-{
-  "id": {
-    "_constructor": "inputPhotoEmpty#1cd7bf0d"
-  },
-  "crop": {
-    "_constructor": "inputPhotoCropAuto#ade6b004"
-  },
-  "_constructor": "inputChatPhoto#b2e1bf08"
-}
